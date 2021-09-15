@@ -1,5 +1,3 @@
-## This is what you need when starting Section 3! (:
-
 ## Project setup
 ```
 npm install
