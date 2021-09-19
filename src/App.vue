@@ -3,7 +3,7 @@
     <nav class="navbar is-white topNav">
       <div class="container">
         <div class="navbar-brand">
-          <h1>Activity Planner</h1>
+          <h1>{{ fullAppName }}</h1>
         </div>
       </div>
     </nav>
@@ -24,54 +24,8 @@
     </nav>
     <section class="container">
       <div class="columns">
-        <div class="column is-3">
-          <a
-            v-if="!isFormDisplayed"
-            class="button is-primary is-block is-alt is-large"
-            href="#"
-            @click="toggleFormDisplay"
-          >
-            New Activity
-          </a>
-          <div v-if="isFormDisplayed" class="create-form">
-            <h2>Create Activity</h2>
-            <form>
-              <div class="field">
-                <label class="label">Title</label>
-                <div class="control">
-                  <input
-                    v-model="newActivity.title"
-                    class="input"
-                    type="text"
-                    placeholder="Read a Book"
-                  />
-                </div>
-              </div>
-              <div class="field">
-                <label class="label">Notes</label>
-                <div class="control">
-                  <textarea
-                    v-model="newActivity.notes"
-                    class="textarea"
-                    placeholder="Write some notes here"
-                  ></textarea>
-                </div>
-              </div>
-              <div class="field is-grouped">
-                <div class="control">
-                  <button class="button is-link" @click="createActivity">
-                    Create Activity
-                  </button>
-                </div>
-                <div class="control">
-                  <button class="button is-text" @click="toggleFormDisplay">
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
+        <!-- form goes here -->
+        <ActivityCreate :categories="categories" />
         <div class="column is-9">
           <div class="box content">
             <ActivityItem
@@ -79,6 +33,10 @@
               :key="activity.id"
               :activity="activity"
             />
+            <div class="activity-length">
+              Currently {{ activityLength }} activities
+            </div>
+            <div class="activity-motivation">{{ activityMotivation }}</div>
           </div>
         </div>
       </div>
@@ -88,44 +46,47 @@
 
 <script>
 import ActivityItem from '@/components/ActivityItem'
+import ActivityCreate from '@/components/ActivityCreate'
+
 import { fetchActivities, fetchCategories, fetchUsers } from '@/api'
 export default {
   name: 'App',
-  components: { ActivityItem },
+  components: { ActivityItem, ActivityCreate },
   data() {
     return {
       isFormDisplayed: false,
-      message: 'Hello Vue!',
-      titleMessage: 'Title Message Vue!!!!!',
-      isTextDisplayed: true,
-      newActivity: {
-        title: '',
-        notes: ''
-      },
+      creator: 'Cameron Moodley',
+      appName: 'Activity Planner',
+      watchedAppName: 'Activity Planner by Cameron Moodley',
       items: { 1: { name: 'Filip' }, 2: { name: 'John' } },
       user: {},
       activities: {},
       categories: {}
     }
   },
+  computed: {
+    // computed properties are not executed always its stored in cache for
+    // when its needed methods always run because of rerenders
+    // Must always return something
+    fullAppName() {
+      return `${this.appName} by ${this.creator}`
+    },
+    activityLength() {
+      return Object.keys(this.activities).length
+    },
+    activityMotivation() {
+      if (this.activityLength && this.activityLength < 5) {
+        return 'Nice to see some activities (:'
+      } else if (this.activityLength >= 5) {
+        return 'So many activities'
+      }
+      return 'No activities so sad ):'
+    }
+  },
   created() {
     this.activities = fetchActivities()
     this.categories = fetchCategories()
     this.users = fetchUsers()
-
-    console.log(this.users)
-    console.log(this.categories)
-  },
-  methods: {
-    toggleTextDisplay() {
-      this.isTextDisplayed = !this.isTextDisplayed
-    },
-    toggleFormDisplay() {
-      this.isFormDisplayed = !this.isFormDisplayed
-    },
-    createActivity() {
-      console.log(this.newActivity)
-    }
   }
 }
 </script>
@@ -207,5 +168,22 @@ article.post:last-child {
 .navbar-brand > h1 {
   font-size: 31px;
   padding: 20px;
+}
+
+.activity-length {
+  float: right;
+}
+
+.activity-length {
+  display: inline-block;
+}
+
+.select {
+  background-color: #fff;
+  border-color: #dbdbdb;
+  color: #363636;
+  box-shadow: inset 0 1px 2px rgb(10 10 10 / 10%);
+  max-width: 100%;
+  width: 100%;
 }
 </style>
