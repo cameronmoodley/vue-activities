@@ -11,8 +11,12 @@
 			<div class="container">
 				<div class="navbar-menu">
 					<div class="navbar-start">
-						<a class="navbar-item is-active" href="#">Newest</a>
-						<a class="navbar-item" href="#">In Progress</a>
+						<a class="navbar-item is-active" href="#">
+							Newest
+						</a>
+						<a class="navbar-item" href="#">
+							In Progress
+						</a>
 						<a class="navbar-item" href="#">Finished</a>
 					</div>
 				</div>
@@ -26,8 +30,9 @@
 						@click="toggleFormDisplay"
 						class="button is-primary is-block is-alt is-large"
 						href="#"
-						>New Activity</a
 					>
+						New Activity
+					</a>
 					<div v-if="isFormDisplayed" class="create-form">
 						<h2>Create Activity</h2>
 						<form>
@@ -71,9 +76,9 @@
 					<div class="box content">
 						<ActivityItem
 							v-for="activity in activities"
-							:activity="activity"
 							:key="activity.id"
-						></ActivityItem>
+							:activity="activity"
+						/>
 					</div>
 				</div>
 			</div>
@@ -85,7 +90,7 @@
 import ActivityItem from '@/components/ActivityItem';
 import { fetchActivities } from '@/api';
 export default {
-	name: 'app',
+	name: 'App',
 	components: { ActivityItem },
 	data() {
 		return {
@@ -133,6 +138,7 @@ export default {
 	destroyed() {
 		console.log('destroyed called!');
 	},
+
 	methods: {
 		toggleTextDisplay() {
 			this.isTextDisplayed = !this.isTextDisplayed;
