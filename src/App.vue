@@ -25,7 +25,10 @@
     <section class="container">
       <div class="columns">
         <!-- form goes here -->
-        <ActivityCreate :categories="categories" />
+        <ActivityCreate
+          :categories="categories"
+          @activityCreated="addActivity"
+        />
         <div class="column is-9">
           <div class="box content">
             <ActivityItem
@@ -87,6 +90,12 @@ export default {
     this.activities = fetchActivities()
     this.categories = fetchCategories()
     this.users = fetchUsers()
+  },
+  methods: {
+    addActivity(newActivity) {
+      console.log(newActivity)
+      // this.activities[activity.id] = activity
+    }
   }
 }
 </script>

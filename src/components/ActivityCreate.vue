@@ -58,7 +58,7 @@
             </button>
           </div>
           <div class="control">
-            <button class="button is-text" @click="toggleFormDisplay">
+            <button class="button is-text" @click.prevent="toggleFormDisplay">
               Cancel
             </button>
           </div>
@@ -68,6 +68,7 @@
   </div>
 </template>
 <script>
+import { createActivity } from '@/api'
 export default {
   props: {
     categories: {
@@ -86,9 +87,6 @@ export default {
     }
   },
   computed: {
-    // computed properties are not executed always its stored in cache for
-    // when its needed methods always run because of rerenders
-    // Must always return something
     isFormValid() {
       return this.newActivity.title && this.newActivity.notes
     }
@@ -98,7 +96,9 @@ export default {
       this.isFormDisplayed = !this.isFormDisplayed
     },
     createActivity() {
-      console.log(this.newActivity)
+      createActivity(this.newActivity).then(activity => {
+        this.$emit('activityCreated', { ...activity })
+      })
     }
   }
 }
