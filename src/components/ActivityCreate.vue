@@ -33,14 +33,14 @@
           </div>
         </div>
         <div class="field">
-          <label class="label">Notes</label>
+          <label class="label">Categories</label>
           <div class="control">
             <select v-model="newActivity.category" class="select">
               <option disabled value="">Select a category</option>
               <option
                 v-for="category in categories"
                 :key="category.id"
-                :value="category.text"
+                :value="category.id"
               >
                 {{ category.text }}
               </option>
@@ -68,7 +68,7 @@
   </div>
 </template>
 <script>
-import { createActivity } from '@/api'
+import { createActivityApi } from '@/api'
 export default {
   props: {
     categories: {
@@ -88,15 +88,26 @@ export default {
   },
   computed: {
     isFormValid() {
-      return this.newActivity.title && this.newActivity.notes
+      return (
+        this.newActivity.title &&
+        this.newActivity.notes &&
+        this.newActivity.category
+      )
     }
   },
   methods: {
     toggleFormDisplay() {
       this.isFormDisplayed = !this.isFormDisplayed
     },
+    resetActivity() {
+      this.isFormDisplayed = false
+      this.newActivity.notes = ''
+      this.newActivity.title = ''
+      this.newActivity.category = ''
+    },
     createActivity() {
-      createActivity(this.newActivity).then(activity => {
+      createActivityApi({ ...this.newActivity }).then(activity => {
+        this.resetActivity()
         this.$emit('activityCreated', { ...activity })
       })
     }

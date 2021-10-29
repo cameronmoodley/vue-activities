@@ -1,27 +1,6 @@
 <template>
-  <div id="activityApp">
-    <nav class="navbar is-white topNav">
-      <div class="container">
-        <div class="navbar-brand">
-          <h1>{{ fullAppName }}</h1>
-        </div>
-      </div>
-    </nav>
-    <nav class="navbar is-white">
-      <div class="container">
-        <div class="navbar-menu">
-          <div class="navbar-start">
-            <a class="navbar-item is-active" href="#">
-              Newest
-            </a>
-            <a class="navbar-item" href="#">
-              In Progress
-            </a>
-            <a class="navbar-item" href="#">Finished</a>
-          </div>
-        </div>
-      </div>
-    </nav>
+  <div v-if="isDataLoaded" id="activityApp">
+    <Navbar :full-app-name="fullAppName" />
     <section class="container">
       <div class="columns">
         <!-- form goes here -->
@@ -30,16 +9,29 @@
           @activityCreated="addActivity"
         />
         <div class="column is-9">
-          <div class="box content">
-            <ActivityItem
-              v-for="activity in activities"
-              :key="activity.id"
-              :activity="activity"
-            />
-            <div class="activity-length">
-              Currently {{ activityLength }} activities
+          <div
+            class="box content"
+            :class="{ fetching: isFetching, 'has-error': error }"
+          >
+            <div v-if="error">
+              {{ error }}
             </div>
-            <div class="activity-motivation">{{ activityMotivation }}</div>
+
+            <div v-else>
+              <div v-if="isFetching">
+                Loading ...
+              </div>
+              <ActivityItem
+                v-for="activity in activities"
+                :key="activity.id"
+                :activity="activity"
+                :categories="categories"
+              />
+              <div class="activity-length">
+                Currently {{ activityLength }} activities
+              </div>
+              <div class="activity-motivation">{{ activityMotivation }}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -48,23 +40,27 @@
 </template>
 
 <script>
+import Vue from 'vue'
+
 import ActivityItem from '@/components/ActivityItem'
 import ActivityCreate from '@/components/ActivityCreate'
+import Navbar from '@/components/TheNavbar'
 
 import { fetchActivities, fetchCategories, fetchUsers } from '@/api'
 export default {
   name: 'App',
-  components: { ActivityItem, ActivityCreate },
+  components: { ActivityItem, ActivityCreate, Navbar },
   data() {
     return {
       isFormDisplayed: false,
       creator: 'Cameron Moodley',
       appName: 'Activity Planner',
       watchedAppName: 'Activity Planner by Cameron Moodley',
-      items: { 1: { name: 'Filip' }, 2: { name: 'John' } },
+      isFetching: false,
+      error: null,
       user: {},
-      activities: {},
-      categories: {}
+      activities: null,
+      categories: null
     }
   },
   computed: {
@@ -84,17 +80,35 @@ export default {
         return 'So many activities'
       }
       return 'No activities so sad ):'
+    },
+    isDataLoaded() {
+      return this.activities && this.categories
     }
   },
   created() {
-    this.activities = fetchActivities()
-    this.categories = fetchCategories()
+    this.isFetching = true
+    fetchActivities()
+      .then(activities => {
+        this.activities = activities
+        this.isFetching = false
+      })
+      .catch(error => {
+        this.error = error
+        this.isFetching = false
+      })
+
+    fetchCategories().then(categories => {
+      this.categories = categories
+    })
     this.users = fetchUsers()
   },
   methods: {
     addActivity(newActivity) {
-      console.log(newActivity)
-      // this.activities[activity.id] = activity
+      // 1. The place where we would like to insert the new value
+      // 2. The name of the new value
+      // 3. The value of the new value
+      // if you dont have vue set the state will not change the dom
+      Vue.set(this.activities, newActivity.id, newActivity)
     }
   }
 }
@@ -194,5 +208,12 @@ article.post:last-child {
   box-shadow: inset 0 1px 2px rgb(10 10 10 / 10%);
   max-width: 100%;
   width: 100%;
+}
+
+.fetching {
+  border: 2px solid orange;
+}
+.has-error {
+  border: 2px solid red;
 }
 </style>
