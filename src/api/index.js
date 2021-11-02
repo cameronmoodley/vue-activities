@@ -12,7 +12,7 @@ export const fetchCategories = () => {
 
 export const fetchUsers = () => {
   return {
-    name: 'Filip Jerga',
+    name: 'Cameron Moodley',
     id: '-Aj34jknvncx98812'
   }
 }
@@ -24,4 +24,8 @@ export const createActivityApi = activity => {
   activity.updatedAt = new Date()
 
   return fakeApi.post('activities', activity)
+}
+
+export const deleteActivityApi = activity => {
+  return fakeApi.delete('activities', activity)
 }

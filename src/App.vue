@@ -26,6 +26,7 @@
                 :key="activity.id"
                 :activity="activity"
                 :categories="categories"
+                @activityDeleted="handleActivityDelete"
               />
               <div class="activity-length">
                 Currently {{ activityLength }} activities
@@ -41,12 +42,18 @@
 
 <script>
 import Vue from 'vue'
+import store from './store'
 
 import ActivityItem from '@/components/ActivityItem'
 import ActivityCreate from '@/components/ActivityCreate'
 import Navbar from '@/components/TheNavbar'
 
-import { fetchActivities, fetchCategories, fetchUsers } from '@/api'
+import {
+  fetchActivities,
+  fetchCategories,
+  fetchUsers,
+  deleteActivityApi
+} from '@/api'
 export default {
   name: 'App',
   components: { ActivityItem, ActivityCreate, Navbar },
@@ -64,9 +71,6 @@ export default {
     }
   },
   computed: {
-    // computed properties are not executed always its stored in cache for
-    // when its needed methods always run because of rerenders
-    // Must always return something
     fullAppName() {
       return `${this.appName} by ${this.creator}`
     },
