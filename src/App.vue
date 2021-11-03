@@ -1,6 +1,6 @@
 <template>
-  <div v-if="isDataLoaded" id="activityApp">
-    <Navbar :full-app-name="fullAppName" />
+  <div id="activityApp">
+    <Navbar :full-app-name="fullAppName" @filterSelected="setFilter" />
     <section class="container">
       <div class="columns">
         <!-- form goes here -->
@@ -18,12 +18,14 @@
               <div v-if="isFetching">
                 Loading ...
               </div>
-              <ActivityItem
-                v-for="activity in activities"
-                :key="activity.id"
-                :activity="activity"
-                :categories="categories"
-              />
+              <div v-if="isDataLoaded">
+                <ActivityItem
+                  v-for="activity in filterActivitiesMethod"
+                  :key="activity.id"
+                  :activity="activity"
+                  :categories="categories"
+                />
+              </div>
               <div class="activity-length">
                 Currently {{ activityLength }} activities
               </div>
@@ -44,6 +46,8 @@ import ActivityItem from '@/components/ActivityItem'
 import ActivityCreate from '@/components/ActivityCreate'
 import Navbar from '@/components/TheNavbar'
 
+import fakeApi from '@/libs/fakeApi'
+
 export default {
   name: 'App',
   components: { ActivityItem, ActivityCreate, Navbar },
@@ -52,18 +56,39 @@ export default {
       state: { activities, categories }
     } = store
     return {
-      isFormDisplayed: false,
       creator: 'Cameron Moodley',
       appName: 'Activity Planner',
-      watchedAppName: 'Activity Planner by Cameron Moodley',
       isFetching: false,
       error: null,
       user: {},
       activities,
-      categories
+      categories,
+      filter: 'all'
     }
   },
   computed: {
+    filterActivitiesMethod() {
+      let filteredActivities = {}
+      let condition
+
+      if (this.filter === 'all') {
+        return this.activities
+      }
+
+      if (this.filter === 'inprogress') {
+        condition = value => value > 0 && value < 100
+      } else if (this.filter === 'finished') {
+        condition = value => value === 100
+      } else {
+        condition = value => value === 0
+      }
+
+      filteredActivities = Object.values(this.activities).filter(activity => {
+        return condition(parseInt(activity.progress))
+      })
+
+      return filteredActivities
+    },
     fullAppName() {
       return `${this.appName} by ${this.creator}`
     },
@@ -89,10 +114,11 @@ export default {
     }
   },
   created() {
+    // fakeApi.fillDB()
     this.isFetching = true
     store
       .fetchActivities()
-      .then(activities => {
+      .then(() => {
         this.isFetching = false
       })
       .catch(error => {
@@ -100,8 +126,13 @@ export default {
         this.isFetching = false
       })
 
-    store.fetchCategories().then(categories => {})
+    store.fetchCategories()
     this.users = store.fetchUsers()
+  },
+  methods: {
+    setFilter(filterOption) {
+      this.filter = filterOption
+    }
   }
 }
 </script>
