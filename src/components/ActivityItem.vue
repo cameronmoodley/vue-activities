@@ -41,11 +41,6 @@ export default {
   methods: {
     changeUpdateState(isUpdate) {
       this.isUpdateActive = isUpdate
-    },
-    handleActivityDelete(activity) {
-      deleteActivityApi(activity).then(deletedActivity => {
-        Vue.delete(this.activities, deletedActivity.id)
-      })
     }
   }
 }

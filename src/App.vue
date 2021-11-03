@@ -4,10 +4,7 @@
     <section class="container">
       <div class="columns">
         <!-- form goes here -->
-        <ActivityCreate
-          :categories="categories"
-          @activityCreated="addActivity"
-        />
+        <ActivityCreate :categories="categories" />
         <div class="column is-9">
           <div
             class="box content"
@@ -26,7 +23,6 @@
                 :key="activity.id"
                 :activity="activity"
                 :categories="categories"
-                @activityDeleted="handleActivityDelete"
               />
               <div class="activity-length">
                 Currently {{ activityLength }} activities
@@ -48,16 +44,13 @@ import ActivityItem from '@/components/ActivityItem'
 import ActivityCreate from '@/components/ActivityCreate'
 import Navbar from '@/components/TheNavbar'
 
-import {
-  fetchActivities,
-  fetchCategories,
-  fetchUsers,
-  deleteActivityApi
-} from '@/api'
 export default {
   name: 'App',
   components: { ActivityItem, ActivityCreate, Navbar },
   data() {
+    const {
+      state: { activities, categories }
+    } = store
     return {
       isFormDisplayed: false,
       creator: 'Cameron Moodley',
@@ -66,8 +59,8 @@ export default {
       isFetching: false,
       error: null,
       user: {},
-      activities: null,
-      categories: null
+      activities,
+      categories
     }
   },
   computed: {
@@ -85,15 +78,21 @@ export default {
       }
       return 'No activities so sad ):'
     },
+    activitiesLenth() {
+      return Object.keys(this.activities).length
+    },
+    categoriesLength() {
+      return Object.keys(this.categories).length
+    },
     isDataLoaded() {
-      return this.activities && this.categories
+      return this.activitiesLenth && this.categoriesLength
     }
   },
   created() {
     this.isFetching = true
-    fetchActivities()
+    store
+      .fetchActivities()
       .then(activities => {
-        this.activities = activities
         this.isFetching = false
       })
       .catch(error => {
@@ -101,19 +100,8 @@ export default {
         this.isFetching = false
       })
 
-    fetchCategories().then(categories => {
-      this.categories = categories
-    })
-    this.users = fetchUsers()
-  },
-  methods: {
-    addActivity(newActivity) {
-      // 1. The place where we would like to insert the new value
-      // 2. The name of the new value
-      // 3. The value of the new value
-      // if you dont have vue set the state will not change the dom
-      Vue.set(this.activities, newActivity.id, newActivity)
-    }
+    store.fetchCategories().then(categories => {})
+    this.users = store.fetchUsers()
   }
 }
 </script>
@@ -138,7 +126,6 @@ footer {
 .example-wrapper {
   margin-left: 30px;
 }
-
 .topNav {
   border-top: 5px solid #3498db;
 }
@@ -160,15 +147,6 @@ aside.menu .menu-list {
 aside.menu .menu-label {
   padding-left: 10px;
   font-weight: 700;
-}
-.button.is-primary.is-alt {
-  background: #00c6ff;
-  background: -webkit-linear-gradient(to bottom, #0072ff, #00c6ff);
-  background: linear-gradient(to bottom, #0072ff, #00c6ff);
-  font-weight: 700;
-  font-size: 14px;
-  height: 3rem;
-  line-height: 2.8;
 }
 .media-left img {
   border-radius: 50%;
@@ -209,7 +187,7 @@ article.post:last-child {
   background-color: #fff;
   border-color: #dbdbdb;
   color: #363636;
-  box-shadow: inset 0 1px 2px rgb(10 10 10 / 10%);
+  box-shadow: inset 0 1px 2px rgb(10 10 10 10%);
   max-width: 100%;
   width: 100%;
 }
